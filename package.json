@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node-debug -p 8200 -d 5961 index.js",
-    "deb":"node-debug -p 8200 -d 5961 index.js"
+    "deb": "node-debug -p 8200 -d 5961 index.js"
   },
   "author": "sebastian correa",
   "license": "ISC",
