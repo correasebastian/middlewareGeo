@@ -7,11 +7,10 @@ var app = express();
 var port = process.env.PORT || 8100;
 
 
-var fg = new Firebase('https://scm-geofire.firebaseio.com/testGeo/')
-var fl = new Firebase('https://scm-geofire.firebaseio.com/lugares/')
-var fg2 = new Firebase('https://scm-geofire.firebaseio.com/testGeo2/')
-var geoFire = new GeoFire(fg);
-var geoFire2 = new GeoFire(fg2);
+var fbRoot = new Firebase('https://scm-geofire.firebaseio.com/')
+
+var fl = fbRoot.child('lugares')
+
 
 // routes will go here
 
@@ -26,18 +25,16 @@ app.get('/api/near', function(req, res) {
     var tacosArray = tacos.split(",");
     var arrayPlaces = []
     var completeArrayP = [];
+    var geoQueriesArray = [];
 
-    function onSnap(snap) {
-        console.log(snap);
-        console.log(snap.val());
-        var obj = snap.val();
-        if (obj) {
-            obj.key = snap.key();
-            completeArray.push(obj)
-        }
-    }
-
+    var fg = fbRoot.child('testGeo')
+    var fg2 = fbRoot.child('testGeo2')
+    var geoFire = new GeoFire(fg);
+    var geoFire2 = new GeoFire(fg2);
     var latLng = [lat, lng]
+
+
+    //mas adelante rear geofires pr cada uno de los tipos de taco, vesrion 2
 
 
     var geoQuery = geoFire.query({
@@ -74,11 +71,19 @@ app.get('/api/near', function(req, res) {
     });
 
     function backArray() {
+        cleanGeos();
         var uA = _.uniq(arrayPlaces);
         getCompleteInfo(uA)
             .then(function() {
                 res.json(completeArrayP)
             })
+
+    }
+
+    function cleanGeos() {
+
+        geoQuery.cancel()
+        geoQuery2.cancel()
 
     }
 
@@ -122,6 +127,36 @@ app.get('/api/near', function(req, res) {
     var timeoutID = setTimeout(backArray, 300);
 
 
+    /////////////////////////////////////////////////////////////
+    ////PRA LA VERSION 2
+    function makeGeos() {
+        tacosArray.forEach(evalObj)
+
+        function createNewgeo(key, i, sameArray) {
+            var fGeo = fbRoot.child(key)
+            var newGeo = new GeoFire(fGeo);
+            var newGeoQuery = geoFire.query({
+                center: latLng,
+                radius: radio
+            });
+            resgisterListenerEvents(newGeoQuery);
+            geoQueriesArray.push(geoQueriesArray);
+
+        }
+    }
+
+    function resgisterListenerEvents(newGeoQuery) {
+        newGeoQuery.on("key_entered", function(key, location, distance) {
+            arrayPlaces.push(key);
+            console.log(key + " entered query at " + location + " (" + distance + " km from center)");
+        });
+    }
+
+    function clearAllQueryListeners(argument) {
+        // body...
+    }
+
+    /////////////////////////////////////////////////////////////////////
 });
 
 // start the server
