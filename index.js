@@ -58,24 +58,44 @@ app.get('/api/near', function(req, res) {
 
     var onKeyEnteredRegistration = geoQuery.on("key_entered", function(key, location, distance) {
 
-        arrayPlaces.push(key);
+        var obj = {
+            key: key,
+            location: location,
+            distance: distance
+        }
+
+        // arrayPlaces.push(key);
+        arrayPlaces.push(obj);
         // fl.child(key).once('value', onSnap)
         console.log(key + " entered query at " + location + " (" + distance + " km from center)");
     });
 
     var onKeyEnteredRegistration2 = geoQuery2.on("key_entered", function(key, location, distance) {
+        var obj = {
+                key: key,
+                location: location,
+                distance: distance
+            }
+            // arrayPlaces.push(key);
+        arrayPlaces.push(obj);
 
-        arrayPlaces.push(key);
         // fl.child(key).once('value', onSnap)
         console.log(key + " entered query at " + location + " (" + distance + " km from center)");
     });
 
     function backArray() {
         cleanGeos();
-        var uA = _.uniq(arrayPlaces);
+        // var uA = _.uniq(arrayPlaces);
+        var uA = _.uniqBy(arrayPlaces, 'key');
+
+
         getCompleteInfo(uA)
             .then(function() {
                 res.json(completeArrayP)
+            })
+            .catch(function(error) {
+
+                res.json(error)
             })
 
     }
@@ -87,31 +107,65 @@ app.get('/api/near', function(req, res) {
 
     }
 
+    /*  function getCompleteInfo(array) {
+          var qArray = []
+          array.forEach(evalObj)
+
+          function evalObj(key, i, sameArray) {
+              console.log(key, i);
+              qArray.push(scmP(key))
+          }
+
+          return Promise.all(qArray)
+              .then(function(values) {
+                  console.log('finish', values); // [3, 1337, "foo"] 
+                  return values;
+              }).catch(function(error) {
+                  console.log('error api')
+              })
+      }*/
+
     function getCompleteInfo(array) {
         var qArray = []
         array.forEach(evalObj)
 
-        function evalObj(key, i, sameArray) {
-            console.log(key, i);
-            qArray.push(scmP(key))
+        function evalObj(obj, i, sameArray) {
+            console.log(obj, i);
+            qArray.push(scmP(obj))
         }
 
         return Promise.all(qArray)
-            .then(function(values) {
-                console.log('finish', values); // [3, 1337, "foo"] 
-                return values;
-            }).catch(function(error) {
-                console.log('error api')
-            })
+
     }
 
-    function scmP(key) {
+    /*    function scmP(key) {
+            return new Promise(function(resolve, reject) {
+                fl.child(key).once('value', function(snap) {
+                    var obj = snap.val();
+                    if (obj) {
+                        obj.key = snap.key();
+                        completeArrayP.push(obj)
+                    }
+                    resolve();
+
+                }, function(error) {
+                    reject(error)
+                })
+
+            })
+
+        }
+    */
+
+
+    function scmP(obj) {
         return new Promise(function(resolve, reject) {
-            fl.child(key).once('value', function(snap) {
-                var obj = snap.val();
-                if (obj) {
-                    obj.key = snap.key();
-                    completeArrayP.push(obj)
+            fl.child(obj.key).once('value', function(snap) {
+                var objFire = snap.val();
+                if (objFire) {
+                    //assign merge the enumerable properties
+                    console.log(_.assign(obj, objFire))
+                    completeArrayP.push(_.assign(obj, objFire))
                 }
                 resolve();
 
@@ -122,7 +176,6 @@ app.get('/api/near', function(req, res) {
         })
 
     }
-
 
     var timeoutID = setTimeout(backArray, 300);
 
