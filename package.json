@@ -4,8 +4,8 @@
   "description": "geofire node middleware",
   "main": "index.js",
   "scripts": {
-    "test": "node-debug -p 8200 -d 5961 index.js",
-    "deb": "node-debug -p 8200 -d 5961 index.js"
+    "start":"node index.js",
+    "test": "node-debug -p 8200 -d 5961 index.js"
   },
   "author": "sebastian correa",
   "license": "ISC",
