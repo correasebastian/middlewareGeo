@@ -4,7 +4,7 @@ var GeoFire = require('GeoFire');
 var Firebase = require('Firebase');
 var _ = require('lodash')
 var app = express();
-var port = process.env.PORT || 8100;
+var port = process.env.PORT || 8300;
 
 
 var fbRoot = new Firebase('https://scm-geofire.firebaseio.com/')
