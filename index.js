@@ -1,7 +1,7 @@
 // grab the packages we need
 var express = require('express');
-var GeoFire = require('GeoFire');
-var Firebase = require('Firebase');
+var GeoFire = require('geofire');
+var Firebase = require('firebase');
 var _ = require('lodash')
 var app = express();
 var port = process.env.PORT || 8300;
